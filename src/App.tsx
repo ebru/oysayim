@@ -180,7 +180,7 @@ const App: FC = () => {
         Resmi bir belge değildir. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
         <br />
         <br />
-        <a href="https://github.com/ebru/oysayim" target="_blank" style={{
+        <a href="https://github.com/ebru/oysayim" target="_blank" rel="noreferrer" style={{
           fontWeight: 700,
           color: 'black'
         }}>Kaynak</a>
