@@ -270,6 +270,33 @@ const App: FC = () => {
             </div>
           </div>
         </Grid>
+        <Grid item xs={12}>
+          <div style={{
+            marginTop: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingTop: 20,
+            borderTop: '2px solid black',
+          }}>
+            <Typography variant="h6" style={{
+              fontWeight: 700,
+            }}>
+              TOPLAM OY
+            </Typography>
+            <Typography style={{
+              fontSize: 48,
+              fontWeight: 700,
+            }}>
+              {invalidVotes + candidates.reduce((acc, candidate) => acc + candidate.votes, 0)}
+            </Typography>
+            <div style={{
+              display: 'flex',
+              gap: 10,
+            }}>
+            </div>
+          </div>
+        </Grid>
       </Grid>
       <div style={{ marginTop: 40, marginBottom: 40, textAlign: 'left' }}>
         Resmi bir belge değildir ve girdiler kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
