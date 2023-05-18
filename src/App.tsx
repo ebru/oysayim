@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from 'react';
-import { Button, Container, Typography, Grid, TextField } from '@mui/material';
+import { Button, Container, Typography, Grid, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import ErdoganImage from './assets/images/Erdogan.png';
 import KilicdarogluImage from './assets/images/Kilicdaroglu.png';
 
@@ -19,6 +19,7 @@ const App: FC = () => {
   const [schoolName, setSchoolName] = useState('');
   const [boxNo, setBoxNo] = useState('');
   const [invalidVotes, setInvalidVotes] = useState(0);
+  const [openConfirmation, setOpenConfirmation] = useState(false);
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
@@ -81,6 +82,17 @@ const App: FC = () => {
     localStorage.removeItem("invalidVotes");
   };
 
+  const handleResetClick = () => {
+    setOpenConfirmation(true);
+  }
+
+  const handleConfirmationClose = (confirmed: boolean) => {
+    setOpenConfirmation(false);
+    if (confirmed) {
+      handleReset();
+    }
+  };
+
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
     const savedSchoolName = localStorage.getItem("schoolName");
@@ -125,10 +137,24 @@ const App: FC = () => {
         }}>
           Cumhurbaşkanlığı Oy Sayım Çetelesi 2023
         </Typography>
-        <Button variant="contained" color="error" onClick={handleReset}>
+        <Button variant="contained" color="error" onClick={handleResetClick}>
           Sıfırla
         </Button>
       </div>
+
+      <Dialog open={openConfirmation} onClose={() => handleConfirmationClose(false)} maxWidth="xs" fullWidth>
+        <DialogTitle style={{ fontWeight: 700 }}>Onay</DialogTitle>
+        <DialogContent>
+          <Typography>Emin misiniz? Bu işlem geri alınamaz.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleConfirmationClose(false)}>İptal</Button>
+          <Button onClick={() => handleConfirmationClose(true)} autoFocus style={{ fontWeight: 700 }}>
+            Onayla
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* <Grid container spacing={3}>
         <Grid item xs={12}>
           <div style={{ marginBottom: 10 }}>
