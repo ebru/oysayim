@@ -1,5 +1,9 @@
 ## Cumhurbaşkanlığı Oy Sayım Çetelesi 2023
 
-Arkadaşımın geçtiğimiz seçimdeki deneyimine istinaden yaşadığı süreci kolaylaştıracak ufak bir geliştirme yaptık birlikte. Resmi bir belge değildir. Müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
+Arkadaşımın geçtiğimiz seçimdeki deneyimine dayanarak, yaşadığı oy sayım sürecini kolaylaştıracak ufak bir geliştirme yaptık birlikte. 
 
-Katkıda bulunabilir ve işe yarayacağını düşündüğünüz kişiler ile paylaşabilirsiniz.
+Resmi bir belge değildir. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
+
+Daha da iyileştirmek konusunda katkıda bulunabilir, atladığımız detaylar var ise haber verebilir, işe yarayacağını düşündüğünüz kişiler ile paylaşabilirsiniz.
+
+![Scheme](public/Demo.png)
