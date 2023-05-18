@@ -100,7 +100,7 @@ const App: FC = () => {
       }}>
         <Typography variant="h6" style={{
           fontWeight: 700,
-          fontSize: 28,
+          fontSize: 24,
           textAlign: 'left',
         }}>
           Cumhurbaşkanlığı Oy Sayım Çetelesi 2023
@@ -111,7 +111,7 @@ const App: FC = () => {
       </div>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 10 }}>
             <TextField
               label="Okul İsmi"
               size='small'
@@ -121,7 +121,7 @@ const App: FC = () => {
               fullWidth
             />
           </div>
-          <div style={{ marginBottom: 10 }}>
+          <div>
             <TextField
               label="Sandık No"
               size='small'
@@ -133,7 +133,7 @@ const App: FC = () => {
           </div>
         </Grid>
       </Grid>
-      <Grid container spacing={3} style={{ marginTop: 10 }}>
+      <Grid container spacing={3} style={{ marginTop: 5 }}>
         {candidates.map((candidate, index) => (
           <Grid item xs={6} key={index}>
             <div style={{
