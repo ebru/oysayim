@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from 'react';
-import { Button, Container, Typography, Grid, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Button, Container, Typography, Grid, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import ErdoganImage from './assets/images/Erdogan.png';
 import KilicdarogluImage from './assets/images/Kilicdaroglu.png';
 
@@ -16,8 +16,8 @@ const candidateData: Candidate[] = [
 
 const App: FC = () => {
   const [candidates, setCandidates] = useState(candidateData);
-  const [schoolName, setSchoolName] = useState('');
-  const [boxNo, setBoxNo] = useState('');
+  // const [schoolName, setSchoolName] = useState('');
+  // const [boxNo, setBoxNo] = useState('');
   const [invalidVotes, setInvalidVotes] = useState(0);
   const [openConfirmation, setOpenConfirmation] = useState(false);
 
@@ -46,17 +46,17 @@ const App: FC = () => {
     }
   };
 
-  const handleSchoolNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = event.target.value;
-    setSchoolName(newName);
-    localStorage.setItem("schoolName", newName);
-  };
+  // const handleSchoolNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newName = event.target.value;
+  //   setSchoolName(newName);
+  //   localStorage.setItem("schoolName", newName);
+  // };
 
-  const handleBoxNoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newBoxNo = event.target.value;
-    setBoxNo(newBoxNo);
-    localStorage.setItem("boxNo", newBoxNo);
-  };
+  // const handleBoxNoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newBoxNo = event.target.value;
+  //   setBoxNo(newBoxNo);
+  //   localStorage.setItem("boxNo", newBoxNo);
+  // };
 
   const handleInvalidVote = () => {
     setInvalidVotes(prevInvalidVotes => prevInvalidVotes + 1);
@@ -73,8 +73,8 @@ const App: FC = () => {
   const handleReset = () => {
     const resetCandidates = candidates.map(candidate => ({ ...candidate, votes: 0 }));
     setCandidates(resetCandidates);
-    setSchoolName('');
-    setBoxNo('');
+    // setSchoolName('');
+    // setBoxNo('');
     setInvalidVotes(0);
     localStorage.removeItem("votes");
     localStorage.removeItem("schoolName");
@@ -95,8 +95,8 @@ const App: FC = () => {
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
-    const savedSchoolName = localStorage.getItem("schoolName");
-    const savedBoxNo = localStorage.getItem("boxNo");
+    // const savedSchoolName = localStorage.getItem("schoolName");
+    // const savedBoxNo = localStorage.getItem("boxNo");
     const savedInvalidVotes = localStorage.getItem("invalidVotes");
 
     if (savedVotes) {
@@ -104,13 +104,13 @@ const App: FC = () => {
       setCandidates(candidateData.map((candidate, index) => ({ ...candidate, votes: votes[index] })));
     }
 
-    if (savedSchoolName) {
-      setSchoolName(savedSchoolName);
-    }
+    // if (savedSchoolName) {
+    //   setSchoolName(savedSchoolName);
+    // }
 
-    if (savedBoxNo) {
-      setBoxNo(savedBoxNo);
-    }
+    // if (savedBoxNo) {
+    //   setBoxNo(savedBoxNo);
+    // }
 
     if (savedInvalidVotes) {
       setInvalidVotes(Number(savedInvalidVotes));
