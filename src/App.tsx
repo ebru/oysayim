@@ -177,7 +177,7 @@ const App: FC = () => {
         ))}
       </Grid>
       <div style={{ marginTop: 40, marginBottom: 40, textAlign: 'left' }}>
-        Resmi bir belge değildir. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
+        Resmi bir belge değildir ve girdiler kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
         <br />
         <br />
         <a href="https://github.com/ebru/oysayim" target="_blank" rel="noreferrer" style={{
