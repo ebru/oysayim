@@ -6,7 +6,7 @@ Resmi bir belge değildir. Parti bağımsız, tüm müşahitlerin oy sayımı s�
 
 Daha da iyileştirmek konusunda katkıda bulunabilir, atladığımız detaylar var ise haber verebilir, işe yarayacağını düşündüğünüz kişiler ile paylaşabilirsiniz.
 
-- https://oysayim.netlify.app/
 - https://oysayim.vercel.app/
+- https://oysayim.netlify.app/
 
 ![Scheme](public/Demo.png)
