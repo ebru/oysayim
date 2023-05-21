@@ -388,9 +388,9 @@ const App: FC = () => {
                   <Typography>{candidate.name}: {candidate.votes}</Typography>
                 </div>
               ))}
-              <Typography>GEÇERLİ OYLAR: {pastVote.validVotes}</Typography>
-              <Typography>GEÇERSİZ OYLAR: {pastVote.invalidVotes}</Typography>
-              <Typography>TOPLAM OYLAR: {pastVote.totalVotes}</Typography>
+              <Typography>GEÇERLİ OY: {pastVote.validVotes}</Typography>
+              <Typography>GEÇERSİZ OY: {pastVote.invalidVotes}</Typography>
+              <Typography>TOPLAM OY: {pastVote.totalVotes}</Typography>
             </div>
           ))}
 
