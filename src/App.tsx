@@ -443,7 +443,7 @@ const App: FC = () => {
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
-            <center><img src={report} width={'80%'} /></center>
+            <center><img src={report} alt='report' width={'80%'} /></center>
           </>
         )}
         {!downloading && !report && (
