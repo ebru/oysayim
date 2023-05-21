@@ -13,7 +13,8 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
-  Radio
+  Radio,
+  CircularProgress
 } from '@mui/material';
 
 import ErdoganImage from './assets/images/Erdogan.png';
@@ -46,6 +47,7 @@ const App: FC = () => {
     format: 'PNG',
   });
   const [actionAvailable, setActionAvailable] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
@@ -162,6 +164,17 @@ const App: FC = () => {
   const handleInputChange = (prop: keyof ReportConfig) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setReportConfig({ ...reportConfig, [prop]: event.target.value });
   };
+
+  const handleGenerateReport = async () => {
+    setDownloading(true);
+    try {
+      await generateReport(reportConfig);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <Container style={{
@@ -413,45 +426,55 @@ const App: FC = () => {
       </div>
 
       <Dialog open={reportConfigOpen} onClose={() => setReportConfigOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle style={{ fontWeight: 700 }}>Rapor Ayarları</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Okul İsmi"
-            value={reportConfig.schoolName}
-            onChange={handleInputChange('schoolName')}
-            fullWidth
-            size={'small'}
-            margin="normal"
-          />
-          <TextField
-            label="Sandık No"
-            value={reportConfig.boxNo}
-            size={'small'}
-            onChange={handleInputChange('boxNo')}
-            fullWidth
-            margin="normal"
-          />
-          <FormControl component="fieldset" style={{ marginTop: 10 }}>
-            <FormLabel component="legend">Çıktı Biçimi</FormLabel>
-            <RadioGroup
-              value={reportConfig.format}
-              onChange={handleInputChange('format')}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-              }}
-            >
-              <FormControlLabel value="PNG" control={<Radio />} label="PNG" />
-              <FormControlLabel value="PDF" control={<Radio />} label="PDF" />
-            </RadioGroup>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setReportConfigOpen(false)}>İptal</Button>
-          <Button onClick={() => generateReport(reportConfig)} autoFocus style={{ fontWeight: 700 }}>
-            Rapor Oluştur
-          </Button>
-        </DialogActions>
+        {!downloading && (
+          <>
+            <DialogTitle style={{ fontWeight: 700 }}>Rapor Ayarları</DialogTitle>
+            <DialogContent>
+              <TextField
+                label="Okul İsmi"
+                value={reportConfig.schoolName}
+                onChange={handleInputChange('schoolName')}
+                fullWidth
+                size={'small'}
+                margin="normal"
+              />
+              <TextField
+                label="Sandık No"
+                value={reportConfig.boxNo}
+                size={'small'}
+                onChange={handleInputChange('boxNo')}
+                fullWidth
+                margin="normal"
+              />
+              <FormControl component="fieldset" style={{ marginTop: 10 }}>
+                <FormLabel component="legend">Çıktı Biçimi</FormLabel>
+                <RadioGroup
+                  value={reportConfig.format}
+                  onChange={handleInputChange('format')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                  }}
+                >
+                  <FormControlLabel value="PNG" control={<Radio />} label="PNG" />
+                  <FormControlLabel value="PDF" control={<Radio />} label="PDF" />
+                </RadioGroup>
+              </FormControl>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setReportConfigOpen(false)}>İptal</Button>
+              <Button onClick={handleGenerateReport} autoFocus style={{ fontWeight: 700 }}>
+                Rapor Oluştur
+              </Button>
+            </DialogActions>
+          </>
+        )}
+        {downloading && (
+          <div style={{ padding: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 15 }}>
+            <CircularProgress />
+            Rapor oluşturuluyor...
+          </div>
+        )}
       </Dialog>
 
       <div style={{ marginTop: 40, marginBottom: 40, textAlign: 'left' }}>

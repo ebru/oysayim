@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import domtoimage from 'dom-to-image';
 import { Grid, Typography } from '@mui/material';
 import { jsPDF } from 'jspdf';
@@ -185,29 +185,44 @@ const ReportContent: React.FC<ReportContentProps> = ({
   )
 }
 
-export const generateReport = (reportConfig: ReportConfig) => {
+export const generateReport = (reportConfig: ReportConfig): Promise<void> => {
   const reportContent = document.getElementById('reportContent');
+
   if (reportContent) {
     reportContent.style.display = 'block';
 
-    if (reportConfig.format === 'PNG') {
-      domtoimage.toBlob(reportContent)
-        .then((blob) => {
-          saveAs(blob!, `OyRaporu_${new Date().getTime()}.png`);
-          reportContent.style.display = 'none';
-        });
-    } else {
-      domtoimage.toPng(reportContent)
-        .then((dataUrl) => {
-          const pdf = new jsPDF();
-          const imgProps = pdf.getImageProperties(dataUrl);
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-          pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save(`OyRaporu_${new Date().getTime()}.pdf`);
-          reportContent.style.display = 'none';
-        });
-    }
+    return new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        if (reportConfig.format === 'PNG') {
+          domtoimage.toBlob(reportContent)
+            .then((blob) => {
+              saveAs(blob!, `OyRaporu_${new Date().getTime()}.png`);
+              reportContent.style.display = 'none';
+              resolve();
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        } else {
+          domtoimage.toPng(reportContent)
+            .then((dataUrl) => {
+              const pdf = new jsPDF();
+              const imgProps = pdf.getImageProperties(dataUrl);
+              const pdfWidth = pdf.internal.pageSize.getWidth();
+              const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+              pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+              pdf.save(`OyRaporu_${new Date().getTime()}.pdf`);
+              reportContent.style.display = 'none';
+              resolve();
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        }
+      }, 2000);
+    });
+  } else {
+    return Promise.reject(new Error('Report content element not found.'));
   }
 };
 
