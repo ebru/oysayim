@@ -1,5 +1,5 @@
 import React from 'react';
-import domtoimage from 'dom-to-image';
+import html2canvas from 'html2canvas';
 import { Grid, Typography } from '@mui/material';
 import { jsPDF } from 'jspdf';
 import { saveAs } from 'file-saver';
@@ -197,37 +197,33 @@ export const generateReport = (reportConfig: ReportConfig): Promise<void> => {
 
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
-        if (reportConfig.format === 'PNG') {
-          domtoimage.toBlob(reportContent)
-            .then((blob) => {
-              saveAs(blob!, `OyRaporu_${new Date().getTime()}.png`);
-              reportContent.style.display = 'none';
-              resolve();
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        } else {
-          domtoimage.toPng(reportContent)
-            .then((dataUrl) => {
-              const pdf = new jsPDF();
-              const imgProps = pdf.getImageProperties(dataUrl);
-              const pdfWidth = pdf.internal.pageSize.getWidth();
-              const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-              pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
-              pdf.save(`OyRaporu_${new Date().getTime()}.pdf`);
-              reportContent.style.display = 'none';
-              resolve();
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        }
+        html2canvas(reportContent).then(canvas => {
+          let pdf;
+          if (reportConfig.format === 'PNG') {
+            const imgData = canvas.toDataURL("image/png");
+            saveAs(imgData, `OyRaporu_${new Date().getTime()}.png`);
+            reportContent.style.display = 'none';
+            resolve();
+          } else {
+            pdf = new jsPDF('p', 'mm', 'a4'); // A4 size page of PDF
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`OyRaporu_${new Date().getTime()}.pdf`);
+            reportContent.style.display = 'none';
+            resolve();
+          }
+        }).catch(error => {
+          reject(error);
+        });
       }, 2000);
     });
   } else {
     return Promise.reject(new Error('Report content element not found.'));
   }
 };
+
 
 export default ReportContent;
