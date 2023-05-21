@@ -161,7 +161,9 @@ const ReportContent: React.FC<ReportContentProps> = ({
             }}>
               TÜM OYLAR
             </Typography>
-            <PieChart data={totalVotesData} />
+            <center>
+              <PieChart data={totalVotesData} />
+            </center>
           </Grid>
           <Grid item xs={6}>
             <Typography variant="h6" style={{
@@ -169,7 +171,9 @@ const ReportContent: React.FC<ReportContentProps> = ({
             }}>
               GEÇERLİ OYLAR
             </Typography>
-            <PieChart data={validVotesData} />
+            <center>
+              <PieChart data={validVotesData} />
+            </center>
           </Grid>
         </Grid>
       </div>
