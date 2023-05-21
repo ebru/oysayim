@@ -462,9 +462,9 @@ const App: FC = () => {
               </FormControl>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setReportConfigOpen(false)}>İptal</Button>
+              <Button onClick={() => setReportConfigOpen(false)}>İPTAL</Button>
               <Button onClick={handleGenerateReport} autoFocus style={{ fontWeight: 700 }}>
-                Rapor Oluştur
+                RAPOR OLUŞTUR
               </Button>
             </DialogActions>
           </>
