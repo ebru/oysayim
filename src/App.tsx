@@ -13,47 +13,24 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
-  Checkbox,
   Radio
 } from '@mui/material';
-import jsPDF from 'jspdf';
-import domtoimage from 'dom-to-image';
 
 import ErdoganImage from './assets/images/Erdogan.png';
 import KilicdarogluImage from './assets/images/Kilicdaroglu.png';
+import {
+  Candidate,
+  PastVotes,
+  ReportConfig,
+} from './Types';
+import ReportContent, { generateReport } from './components/ReportContent';
 
-interface Candidate {
-  name: string;
-  image: string;
-  votes: number;
-}
-
-interface PastVotes {
-  timestamp: number;
-  votes: Candidate[];
-  invalidVotes: number;
-  validVotes: number;
-  totalVotes: number;
-}
-
-interface ReportConfigType {
-  schoolName: string;
-  boxNo: string;
-  outputFormat: 'png' | 'pdf';
-  includeHistory: boolean;
-};
+const ACTION_DELAY = 300;
 
 const candidateData: Candidate[] = [
   { name: "RECEP TAYYİP ERDOĞAN", image: ErdoganImage, votes: 0 },
   { name: "KEMAL KILIÇDAROĞLU", image: KilicdarogluImage, votes: 0 },
 ];
-
-const initialReportConfig: ReportConfigType = {
-  schoolName: '',
-  boxNo: '',
-  outputFormat: 'png',
-  includeHistory: false,
-};
 
 const App: FC = () => {
   const [candidates, setCandidates] = useState(candidateData);
@@ -63,7 +40,12 @@ const App: FC = () => {
   const [pastVotes, setPastVotes] = useState<PastVotes[]>([]);
   const [logOpen, setLogOpen] = useState(false);
   const [reportConfigOpen, setReportConfigOpen] = useState(false);
-  const [reportConfig, setReportConfig] = useState<ReportConfigType>(initialReportConfig);
+  const [reportConfig, setReportConfig] = useState<ReportConfig>({
+    schoolName: '',
+    boxNo: '',
+    format: 'PNG',
+  });
+  const [actionAvailable, setActionAvailable] = useState(true);
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
@@ -82,7 +64,22 @@ const App: FC = () => {
     }
   }, []);
 
+  const checkActionAvailable = () => {
+    if (actionAvailable) {
+      setActionAvailable(false);
+      setTimeout(() => {
+        setActionAvailable(true);
+      }, ACTION_DELAY);
+    }
+  }
+
   const handleVote = (index: number) => {
+    checkActionAvailable();
+
+    if (!actionAvailable) {
+      return null;
+    }
+
     const newCandidates = [...candidates];
     newCandidates[index].votes++;
     setCandidates(newCandidates);
@@ -90,6 +87,12 @@ const App: FC = () => {
   };
 
   const handleRemoveVote = (index: number) => {
+    checkActionAvailable();
+
+    if (!actionAvailable) {
+      return null;
+    }
+
     const newCandidates = [...candidates];
     if (newCandidates[index].votes > 0) {
       newCandidates[index].votes--;
@@ -156,37 +159,9 @@ const App: FC = () => {
     setActionType(null);
   };
 
-  const handleInputChange = (prop: keyof ReportConfigType) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (prop: keyof ReportConfig) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setReportConfig({ ...reportConfig, [prop]: event.target.value });
   };
-
-  const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setReportConfig({ ...reportConfig, includeHistory: event.target.checked });
-  };
-
-  const handleGenerateReport = () => {
-    // const content;  create content to print
-
-    // if (reportConfig.outputFormat === 'pdf') {
-    //   const pdf = new jsPDF();
-    //   pdf.text(`School Name: ${reportConfig.schoolName}`, 10, 10);
-    //   pdf.text(`Box No: ${reportConfig.boxNo}`, 10, 20);
-    //   pdf.text(`Include History: ${reportConfig.includeHistory ? 'Yes' : 'No'}`, 10, 30);
-    //   pdf.save('rapor.pdf');
-    // } else {
-    //   domtoimage.toPng(content)
-    //     .then((dataUrl) => {
-    //       const link = document.createElement('a');
-    //       link.download = 'rapor.png';
-    //       link.href = dataUrl;
-    //       link.click();
-    //     })
-    //     .catch((error) => {
-    //       console.error('oops, something went wrong!', error);
-    //     });
-    // }
-  }
-
 
   return (
     <Container style={{
@@ -282,18 +257,28 @@ const App: FC = () => {
                 alignItems: 'center',
                 gap: 5,
               }}>
-                <Button variant="contained" color="primary" size="large" onClick={() => handleVote(index)} style={{
-                  fontWeight: 700,
-                  padding: '15px 10px',
-                  fontSize: 20,
-                  marginBottom: 20,
-                  width: 120,
-                }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={() => handleVote(index)}
+                  style={{
+                    fontWeight: 700,
+                    padding: '15px 10px',
+                    fontSize: 20,
+                    marginBottom: 20,
+                    width: 120,
+                  }}>
                   Oy Ekle
                 </Button>
-                <Button variant="outlined" color="error" size="small" onClick={() => handleRemoveVote(index)} style={{
-                  padding: '5px',
-                }}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => handleRemoveVote(index)}
+                  style={{
+                    padding: '5px',
+                  }}>
                   Oy Çıkar
                 </Button>
               </div>
@@ -449,34 +434,28 @@ const App: FC = () => {
           <FormControl component="fieldset" style={{ marginTop: 10 }}>
             <FormLabel component="legend">Çıktı Biçimi</FormLabel>
             <RadioGroup
-              value={reportConfig.outputFormat}
-              onChange={handleInputChange('outputFormat')}
+              value={reportConfig.format}
+              onChange={handleInputChange('format')}
               style={{
                 display: 'flex',
                 flexDirection: 'row',
               }}
             >
-              <FormControlLabel value="png" control={<Radio />} label="PNG" />
-              <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+              <FormControlLabel value="PNG" control={<Radio />} label="PNG" />
+              <FormControlLabel value="PDF" control={<Radio />} label="PDF" />
             </RadioGroup>
           </FormControl>
-          <div>
-            <FormControlLabel
-              control={<Checkbox checked={reportConfig.includeHistory} onChange={handleCheckboxChange} />}
-              label="Geçmişi Dahil Et"
-            />
-          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setReportConfigOpen(false)}>İptal</Button>
-          <Button onClick={handleGenerateReport} autoFocus style={{ fontWeight: 700 }}>
+          <Button onClick={() => generateReport(reportConfig)} autoFocus style={{ fontWeight: 700 }}>
             Rapor Oluştur
           </Button>
         </DialogActions>
       </Dialog>
 
       <div style={{ marginTop: 40, marginBottom: 40, textAlign: 'left' }}>
-        Resmi bir belge değildir ve girdiler kendi cihazınız dışında farklı bir yerde kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
+        Resmi bir belge değildir ve girdiler kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
         <br />
         <br />
         <a href="https://github.com/ebru/oysayim" target="_blank" rel="noreferrer" style={{
@@ -484,6 +463,12 @@ const App: FC = () => {
           color: 'black'
         }}>Kaynak</a>
       </div>
+
+      <ReportContent
+        reportConfig={reportConfig}
+        candidates={candidates}
+        invalidVotes={invalidVotes}
+      />
     </Container>
   );
 };
