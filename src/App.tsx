@@ -9,6 +9,14 @@ interface Candidate {
   votes: number;
 }
 
+interface PastVotes {
+  timestamp: number;
+  votes: Candidate[];
+  invalidVotes: number;
+  validVotes: number;
+  totalVotes: number;
+}
+
 const candidateData: Candidate[] = [
   { name: "RECEP TAYYİP ERDOĞAN", image: ErdoganImage, votes: 0 },
   { name: "KEMAL KILIÇDAROĞLU", image: KilicdarogluImage, votes: 0 },
@@ -16,10 +24,11 @@ const candidateData: Candidate[] = [
 
 const App: FC = () => {
   const [candidates, setCandidates] = useState(candidateData);
-  // const [schoolName, setSchoolName] = useState('');
-  // const [boxNo, setBoxNo] = useState('');
   const [invalidVotes, setInvalidVotes] = useState(0);
   const [openConfirmation, setOpenConfirmation] = useState(false);
+  const [actionType, setActionType] = useState<'reset' | 'clear' | null>(null);
+  const [pastVotes, setPastVotes] = useState<PastVotes[]>([]);
+  const [logOpen, setLogOpen] = useState(false);
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
@@ -46,18 +55,6 @@ const App: FC = () => {
     }
   };
 
-  // const handleSchoolNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const newName = event.target.value;
-  //   setSchoolName(newName);
-  //   localStorage.setItem("schoolName", newName);
-  // };
-
-  // const handleBoxNoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const newBoxNo = event.target.value;
-  //   setBoxNo(newBoxNo);
-  //   localStorage.setItem("boxNo", newBoxNo);
-  // };
-
   const handleInvalidVote = () => {
     setInvalidVotes(prevInvalidVotes => prevInvalidVotes + 1);
     localStorage.setItem("invalidVotes", String(invalidVotes + 1));
@@ -71,49 +68,65 @@ const App: FC = () => {
   };
 
   const handleReset = () => {
+    const validVotes = candidates.reduce((acc, candidate) => acc + candidate.votes, 0);
+    const totalVotes = validVotes + invalidVotes;
+
+    const newPastVotes = { timestamp: Date.now(), votes: [...candidates], invalidVotes, validVotes, totalVotes };
+    setPastVotes(prevPastVotes => {
+      const updatedPastVotes = [newPastVotes, ...prevPastVotes];
+      localStorage.setItem("pastVotes", JSON.stringify(updatedPastVotes)); // Storing in local storage
+      return updatedPastVotes;
+    });
+
     const resetCandidates = candidates.map(candidate => ({ ...candidate, votes: 0 }));
     setCandidates(resetCandidates);
-    // setSchoolName('');
-    // setBoxNo('');
     setInvalidVotes(0);
+
     localStorage.removeItem("votes");
-    localStorage.removeItem("schoolName");
-    localStorage.removeItem("boxNo");
     localStorage.removeItem("invalidVotes");
   };
 
+  const handleClearPastVotes = () => {
+    setPastVotes([]);
+    localStorage.removeItem('pastVotes');
+  };
+
   const handleResetClick = () => {
+    setActionType('reset');
+    setOpenConfirmation(true);
+  }
+
+  const handleClearPastVotesClick = () => {
+    setActionType('clear');
     setOpenConfirmation(true);
   }
 
   const handleConfirmationClose = (confirmed: boolean) => {
     setOpenConfirmation(false);
     if (confirmed) {
-      handleReset();
+      if (actionType === 'reset') {
+        handleReset();
+      } else if (actionType === 'clear') {
+        handleClearPastVotes();
+      }
     }
+    setActionType(null);
   };
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
-    // const savedSchoolName = localStorage.getItem("schoolName");
-    // const savedBoxNo = localStorage.getItem("boxNo");
     const savedInvalidVotes = localStorage.getItem("invalidVotes");
+    const savedPastVotes = localStorage.getItem("pastVotes");
 
     if (savedVotes) {
       const votes = JSON.parse(savedVotes);
       setCandidates(candidateData.map((candidate, index) => ({ ...candidate, votes: votes[index] })));
     }
-
-    // if (savedSchoolName) {
-    //   setSchoolName(savedSchoolName);
-    // }
-
-    // if (savedBoxNo) {
-    //   setBoxNo(savedBoxNo);
-    // }
-
     if (savedInvalidVotes) {
       setInvalidVotes(Number(savedInvalidVotes));
+    }
+    if (savedPastVotes) {
+      setPastVotes(JSON.parse(savedPastVotes));
     }
   }, []);
 
@@ -155,30 +168,36 @@ const App: FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <div style={{ marginBottom: 10 }}>
-            <TextField
-              label="Okul İsmi"
-              size='small'
-              variant="outlined"
-              value={schoolName}
-              onChange={handleSchoolNameChange}
-              fullWidth
-            />
+      <Grid item xs={12}>
+        <div style={{
+          marginTop: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          paddingTop: 10,
+          borderTop: '2px solid black',
+          marginBottom: -10,
+        }}>
+          <Typography variant="h6" style={{
+            fontWeight: 700,
+            marginBottom: -10,
+          }}>
+            TOPLAM OY
+          </Typography>
+          <Typography style={{
+            fontSize: 48,
+            fontWeight: 700,
+          }}>
+            {invalidVotes + candidates.reduce((acc, candidate) => acc + candidate.votes, 0)}
+          </Typography>
+          <div style={{
+            display: 'flex',
+            gap: 10,
+          }}>
           </div>
-          <div>
-            <TextField
-              label="Sandık No"
-              size='small'
-              variant="outlined"
-              value={boxNo}
-              onChange={handleBoxNoChange}
-              fullWidth
-            />
-          </div>
-        </Grid>
-      </Grid> */}
+        </div>
+      </Grid>
+
       <Grid container spacing={3}>
         {candidates.map((candidate, index) => (
           <Grid item xs={6} key={index}>
@@ -229,7 +248,7 @@ const App: FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingTop: 20,
+            paddingTop: 10,
             borderTop: '2px solid black',
           }}>
             <Typography variant="h6" style={{
@@ -270,36 +289,75 @@ const App: FC = () => {
             </div>
           </div>
         </Grid>
-        <Grid item xs={12}>
+      </Grid>
+
+      {logOpen && (
+        <div style={{
+          marginTop: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          paddingTop: 10,
+          borderTop: '2px solid black',
+        }}>
           <div style={{
-            marginTop: 10,
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            paddingTop: 20,
-            borderTop: '2px solid black',
+            justifyContent: 'space-between',
+            width: '100%',
           }}>
             <Typography variant="h6" style={{
               fontWeight: 700,
             }}>
-              TOPLAM OY
+              GEÇMİŞ VERİLER
             </Typography>
-            <Typography style={{
-              fontSize: 48,
-              fontWeight: 700,
-            }}>
-              {invalidVotes + candidates.reduce((acc, candidate) => acc + candidate.votes, 0)}
-            </Typography>
-            <div style={{
-              display: 'flex',
-              gap: 10,
-            }}>
-            </div>
+            <Button onClick={() => setLogOpen(false)} style={{ fontWeight: 700 }}>Kapat</Button>
           </div>
-        </Grid>
-      </Grid>
+          <div style={{ marginBottom: 10, textAlign: 'left' }}>
+            Her sıfırlama esnasındaki son verileri göstermektedir.
+          </div>
+
+          {pastVotes.map((pastVote, index) => (
+            <div key={index} style={{ borderBottom: '1px solid black', paddingBottom: 10, paddingTop: 10 }}>
+              <Typography style={{ fontWeight: 700 }}>{new Date(pastVote.timestamp).toLocaleString('en-GB')}</Typography>
+              {pastVote.votes.map((candidate, candidateIndex) => (
+                <div key={candidateIndex}>
+                  <Typography>{candidate.name}: {candidate.votes}</Typography>
+                </div>
+              ))}
+              <Typography>GEÇERLİ OYLAR: {pastVote.validVotes}</Typography>
+              <Typography>GEÇERSİZ OYLAR: {pastVote.invalidVotes}</Typography>
+              <Typography>TOPLAM OYLAR: {pastVote.totalVotes}</Typography>
+            </div>
+          ))}
+
+          {pastVotes.length > 0 ? (
+            <div style={{ marginTop: 10 }}>
+              <Button variant="contained" color="error" onClick={handleClearPastVotesClick}>
+                GEÇMİŞİ TEMİZLE
+              </Button>
+            </div>
+          ) : (
+            <Typography style={{ color: '#999' }}>Geçmiş veri bulunmuyor.</Typography>
+          )}
+        </div>
+      )}
+
+      {!logOpen && (
+        <div style={{
+          marginTop: 20,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingTop: 10,
+          borderTop: '2px solid black',
+        }}>
+          <Button onClick={() => setLogOpen(true)} style={{ fontWeight: 700, fontSize: 18 }}>
+            GEÇMİŞ VERİLERİ GÖSTER
+          </Button>
+        </div>
+      )}
+
       <div style={{ marginTop: 40, marginBottom: 40, textAlign: 'left' }}>
-        Resmi bir belge değildir ve girdiler kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
+        Resmi bir belge değildir ve girdiler kendi cihazınız dışında farklı bir yerde kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
         <br />
         <br />
         <a href="https://github.com/ebru/oysayim" target="_blank" rel="noreferrer" style={{
