@@ -1,5 +1,24 @@
-import { FC, useState, useEffect } from 'react';
-import { Button, Container, Typography, Grid, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { FC, useState, useEffect, ChangeEvent } from 'react';
+import {
+  Button,
+  Container,
+  Typography,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Checkbox,
+  Radio
+} from '@mui/material';
+import jsPDF from 'jspdf';
+import domtoimage from 'dom-to-image';
+
 import ErdoganImage from './assets/images/Erdogan.png';
 import KilicdarogluImage from './assets/images/Kilicdaroglu.png';
 
@@ -17,10 +36,24 @@ interface PastVotes {
   totalVotes: number;
 }
 
+interface ReportConfigType {
+  schoolName: string;
+  boxNo: string;
+  outputFormat: 'png' | 'pdf';
+  includeHistory: boolean;
+};
+
 const candidateData: Candidate[] = [
   { name: "RECEP TAYYİP ERDOĞAN", image: ErdoganImage, votes: 0 },
   { name: "KEMAL KILIÇDAROĞLU", image: KilicdarogluImage, votes: 0 },
 ];
+
+const initialReportConfig: ReportConfigType = {
+  schoolName: '',
+  boxNo: '',
+  outputFormat: 'png',
+  includeHistory: false,
+};
 
 const App: FC = () => {
   const [candidates, setCandidates] = useState(candidateData);
@@ -29,13 +62,23 @@ const App: FC = () => {
   const [actionType, setActionType] = useState<'reset' | 'clear' | null>(null);
   const [pastVotes, setPastVotes] = useState<PastVotes[]>([]);
   const [logOpen, setLogOpen] = useState(false);
+  const [reportConfigOpen, setReportConfigOpen] = useState(false);
+  const [reportConfig, setReportConfig] = useState<ReportConfigType>(initialReportConfig);
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
+    const savedInvalidVotes = localStorage.getItem("invalidVotes");
+    const savedPastVotes = localStorage.getItem("pastVotes");
 
     if (savedVotes) {
       const votes = JSON.parse(savedVotes);
       setCandidates(candidateData.map((candidate, index) => ({ ...candidate, votes: votes[index] })));
+    }
+    if (savedInvalidVotes) {
+      setInvalidVotes(Number(savedInvalidVotes));
+    }
+    if (savedPastVotes) {
+      setPastVotes(JSON.parse(savedPastVotes));
     }
   }, []);
 
@@ -113,22 +156,37 @@ const App: FC = () => {
     setActionType(null);
   };
 
-  useEffect(() => {
-    const savedVotes = localStorage.getItem("votes");
-    const savedInvalidVotes = localStorage.getItem("invalidVotes");
-    const savedPastVotes = localStorage.getItem("pastVotes");
+  const handleInputChange = (prop: keyof ReportConfigType) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setReportConfig({ ...reportConfig, [prop]: event.target.value });
+  };
 
-    if (savedVotes) {
-      const votes = JSON.parse(savedVotes);
-      setCandidates(candidateData.map((candidate, index) => ({ ...candidate, votes: votes[index] })));
-    }
-    if (savedInvalidVotes) {
-      setInvalidVotes(Number(savedInvalidVotes));
-    }
-    if (savedPastVotes) {
-      setPastVotes(JSON.parse(savedPastVotes));
-    }
-  }, []);
+  const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setReportConfig({ ...reportConfig, includeHistory: event.target.checked });
+  };
+
+  const handleGenerateReport = () => {
+    // const content;  create content to print
+
+    // if (reportConfig.outputFormat === 'pdf') {
+    //   const pdf = new jsPDF();
+    //   pdf.text(`School Name: ${reportConfig.schoolName}`, 10, 10);
+    //   pdf.text(`Box No: ${reportConfig.boxNo}`, 10, 20);
+    //   pdf.text(`Include History: ${reportConfig.includeHistory ? 'Yes' : 'No'}`, 10, 30);
+    //   pdf.save('rapor.pdf');
+    // } else {
+    //   domtoimage.toPng(content)
+    //     .then((dataUrl) => {
+    //       const link = document.createElement('a');
+    //       link.download = 'rapor.png';
+    //       link.href = dataUrl;
+    //       link.click();
+    //     })
+    //     .catch((error) => {
+    //       console.error('oops, something went wrong!', error);
+    //     });
+    // }
+  }
+
 
   return (
     <Container style={{
@@ -355,6 +413,67 @@ const App: FC = () => {
           </Button>
         </div>
       )}
+
+      <div style={{
+        marginTop: 20,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 10,
+        borderTop: '2px solid black',
+      }}>
+        <Button style={{ fontWeight: 700, fontSize: 18 }} onClick={() => setReportConfigOpen(true)}>
+          RAPOR OLUŞTUR
+        </Button>
+      </div>
+
+      <Dialog open={reportConfigOpen} onClose={() => setReportConfigOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle style={{ fontWeight: 700 }}>Rapor Ayarları</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Okul İsmi"
+            value={reportConfig.schoolName}
+            onChange={handleInputChange('schoolName')}
+            fullWidth
+            size={'small'}
+            margin="normal"
+          />
+          <TextField
+            label="Sandık No"
+            value={reportConfig.boxNo}
+            size={'small'}
+            onChange={handleInputChange('boxNo')}
+            fullWidth
+            margin="normal"
+          />
+          <FormControl component="fieldset" style={{ marginTop: 10 }}>
+            <FormLabel component="legend">Çıktı Biçimi</FormLabel>
+            <RadioGroup
+              value={reportConfig.outputFormat}
+              onChange={handleInputChange('outputFormat')}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+              }}
+            >
+              <FormControlLabel value="png" control={<Radio />} label="PNG" />
+              <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+            </RadioGroup>
+          </FormControl>
+          <div>
+            <FormControlLabel
+              control={<Checkbox checked={reportConfig.includeHistory} onChange={handleCheckboxChange} />}
+              label="Geçmişi Dahil Et"
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReportConfigOpen(false)}>İptal</Button>
+          <Button onClick={handleGenerateReport} autoFocus style={{ fontWeight: 700 }}>
+            Rapor Oluştur
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <div style={{ marginTop: 40, marginBottom: 40, textAlign: 'left' }}>
         Resmi bir belge değildir ve girdiler kendi cihazınız dışında farklı bir yerde kayıt altına alınmamaktadır. Parti bağımsız, tüm müşahitlerin oy sayımı sırasında hızlı bir şekilde kontrol yapabilmelerini kolaylaştırmak amacıyla açık kaynak olarak geliştirilmiştir.
