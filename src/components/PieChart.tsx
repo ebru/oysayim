@@ -24,7 +24,7 @@ const PieChart: React.FC<PieChartProps> = ({ data }) => {
         options={{
           plugins: {
             legend: {
-              position: 'top' as const,
+              position: 'bottom' as const,
             },
             tooltip: {
               enabled: false,
