@@ -381,7 +381,7 @@ const App: FC = () => {
           </div>
 
           {pastVotes.map((pastVote, index) => (
-            <div key={index} style={{ borderBottom: '1px solid #ccc', paddingBottom: 10, paddingTop: 10 }}>
+            <div key={index} style={{ borderBottom: '1px solid #ccc', paddingBottom: 10, paddingTop: 10, textAlign: 'left' }}>
               <Typography style={{ fontWeight: 700 }}>{new Date(pastVote.timestamp).toLocaleString('en-GB')}</Typography>
               {pastVote.votes.map((candidate, candidateIndex) => (
                 <div key={candidateIndex}>
