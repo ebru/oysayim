@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import domtoimage from 'dom-to-image';
 import { Grid, Typography } from '@mui/material';
 import { jsPDF } from 'jspdf';
