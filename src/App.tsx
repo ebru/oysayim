@@ -14,8 +14,10 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  CircularProgress
+  CircularProgress,
+  IconButton,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 import ErdoganImage from './assets/images/Erdogan.png';
 import KilicdarogluImage from './assets/images/Kilicdaroglu.png';
@@ -48,6 +50,7 @@ const App: FC = () => {
   });
   const [actionAvailable, setActionAvailable] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [report, setReport] = useState('');
 
   useEffect(() => {
     const savedVotes = localStorage.getItem("votes");
@@ -168,13 +171,19 @@ const App: FC = () => {
   const handleGenerateReport = async () => {
     setDownloading(true);
     try {
-      await generateReport(reportConfig);
+      const image = await generateReport(reportConfig);
+      setReport(image);
     } catch (error) {
       console.error(error);
     } finally {
       setDownloading(false);
     }
   }
+
+  const handleClose = () => {
+    setReportConfigOpen(false)
+    setReport('')
+  };
 
   return (
     <Container style={{
@@ -372,7 +381,7 @@ const App: FC = () => {
           </div>
 
           {pastVotes.map((pastVote, index) => (
-            <div key={index} style={{ borderBottom: '1px solid black', paddingBottom: 10, paddingTop: 10 }}>
+            <div key={index} style={{ borderBottom: '1px solid #ccc', paddingBottom: 10, paddingTop: 10 }}>
               <Typography style={{ fontWeight: 700 }}>{new Date(pastVote.timestamp).toLocaleString('en-GB')}</Typography>
               {pastVote.votes.map((candidate, candidateIndex) => (
                 <div key={candidateIndex}>
@@ -425,10 +434,26 @@ const App: FC = () => {
         </Button>
       </div>
 
-      <Dialog open={reportConfigOpen} onClose={() => setReportConfigOpen(false)} maxWidth="xs" fullWidth>
-        {!downloading && (
+      <Dialog open={reportConfigOpen} onClose={handleClose} maxWidth="xs" fullWidth>
+        {report && (
           <>
-            <DialogTitle style={{ fontWeight: 700 }}>Rapor Ayarları</DialogTitle>
+            <DialogTitle style={{ fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              Oy Raporu
+              <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <center><img src={report} width={'80%'} /></center>
+          </>
+        )}
+        {!downloading && !report && (
+          <>
+            <DialogTitle style={{ fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              Rapor Ayarları
+              <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
             <DialogContent>
               <TextField
                 label="Okul İsmi"
@@ -462,17 +487,17 @@ const App: FC = () => {
               </FormControl>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setReportConfigOpen(false)}>İPTAL</Button>
+              <Button onClick={handleClose}>İPTAL</Button>
               <Button onClick={handleGenerateReport} autoFocus style={{ fontWeight: 700 }}>
-                RAPOR OLUŞTUR
+                RAPOR İNDİR
               </Button>
             </DialogActions>
           </>
         )}
-        {downloading && (
+        {downloading && !report && (
           <div style={{ padding: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 15 }}>
             <CircularProgress />
-            Rapor oluşturuluyor...
+            Rapor indiriliyor...
           </div>
         )}
       </Dialog>

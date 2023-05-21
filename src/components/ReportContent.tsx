@@ -189,13 +189,13 @@ const ReportContent: React.FC<ReportContentProps> = ({
   )
 }
 
-export const generateReport = (reportConfig: ReportConfig): Promise<void> => {
+export const generateReport = (reportConfig: ReportConfig): Promise<string> => {
   const reportContent = document.getElementById('reportContent');
 
   if (reportContent) {
     reportContent.style.display = 'block';
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       setTimeout(() => {
         html2canvas(reportContent).then(canvas => {
           let pdf;
@@ -203,7 +203,7 @@ export const generateReport = (reportConfig: ReportConfig): Promise<void> => {
             const imgData = canvas.toDataURL("image/png");
             saveAs(imgData, `OyRaporu_${new Date().getTime()}.png`);
             reportContent.style.display = 'none';
-            resolve();
+            resolve(imgData);
           } else {
             pdf = new jsPDF('p', 'mm', 'a4'); // A4 size page of PDF
             const imgData = canvas.toDataURL('image/png');
@@ -213,7 +213,7 @@ export const generateReport = (reportConfig: ReportConfig): Promise<void> => {
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save(`OyRaporu_${new Date().getTime()}.pdf`);
             reportContent.style.display = 'none';
-            resolve();
+            resolve(imgData);
           }
         }).catch(error => {
           reject(error);
@@ -224,6 +224,7 @@ export const generateReport = (reportConfig: ReportConfig): Promise<void> => {
     return Promise.reject(new Error('Report content element not found.'));
   }
 };
+
 
 
 export default ReportContent;
