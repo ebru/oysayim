@@ -45,7 +45,7 @@ const ReportContent: React.FC<ReportContentProps> = ({
     <div id="reportContent" style={{
       padding: 10,
       backgroundColor: 'white',
-      display: 'none',
+      display: "none",
       width: 800,
       height: 1132,
     }}>
