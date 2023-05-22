@@ -7,6 +7,7 @@
   "dependencies": {
     "@emotion/react": "11.11.0",
     "@emotion/styled": "11.11.0",
+    "@mui/icons-material": "5.11.16",
     "@mui/material": "5.13.0",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.4.0",
@@ -15,7 +16,13 @@
     "@types/node": "16.18.30",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
+    "chart.js": "4.3.0",
+    "chartjs-plugin-datalabels": "2.2.0",
+    "file-saver": "2.0.5",
+    "html2canvas": "1.4.1",
+    "jspdf": "2.5.1",
     "react": "18.2.0",
+    "react-chartjs-2": "5.2.0",
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
     "typescript": "4.9.5",
@@ -46,6 +53,8 @@
     ]
   },
   "devDependencies": {
+    "@types/dom-to-image": "2.6.4",
+    "@types/file-saver": "2.0.5",
     "gh-pages": "5.0.0"
   }
 }
